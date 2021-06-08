@@ -1,0 +1,46 @@
+（一）Debian10
+1.Vi编辑器
+	方向键和退格键失灵
+		用vi打开/etc/vim/vimrc.tiny,输入以下两行代码
+		set nocompatible
+		set backspace=2
+2.vi快捷键
+	shift+g 切换到最后一行
+	shift+4($) 切换到这一行的末尾
+3.配置网卡
+（1）	修改网卡配置文件 /etc/network/interfaces
+配置网卡eth0的IP地址
+auto eth0表示网卡随系统自动请
+iface eho inet static 表示网卡为静态ip地址
+address 192.168.25.25 表示设置ip地址
+netmask 255.255.255.0 表示子网掩码
+gateway 192.168.25.254 表示网关，不为了上网，可以不写
+（2）	配置dns /etc/resolv.conf
+nameserver 114.114.114.114
+（3）	重启网络
+systemctl restart networking 
+4.配置apt本地源
+	vi /etc/apt/sources.list
+	删除所有内容 一直dd
+	apt-cdrom add
+	未报错就表示配置成功
+5.安装ssh服务
+	apt install -y ssh
+	systemctl start ssh 
+	systemctl status ssh
+	vi /etc/ssh/sshd_config 
+	:set nu #查看行数
+	:32 #直接跳转到第32行
+	在第32行 删除注释符# 然后把 prohibit-password 改成 yes
+	重启sshd服务
+	systemctl restart sshd
+6.配置apt网络源
+	去网上找apt网络源，这里使用的是腾讯云镜像站
+	网站：https://cloud.tencent.com/developer/article/1590080
+	复制下来
+	vi /etc/apt/sources.list
+	dd删除，虽然本地源和网络源可以共存，但为了演示，就将其删除了
+	然后粘贴内容，保存并退出
+	apt clean #清除缓存
+	apt update #更新apt
+	apt install -y vim #尝试安装vim
