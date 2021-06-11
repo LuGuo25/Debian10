@@ -44,3 +44,82 @@ systemctl restart networking
 	apt clean #清除缓存
 	apt update #更新apt
 	apt install -y vim #尝试安装vim
+7.dns
+	#安装dns服务，本次采用bind9
+	apt install -y bind9
+	cd /etc/bind/
+
+	vi named.conf.options
+		#set nu 显示行号
+		#24yy 从当前行向下复制24行
+	vi named.conf
+		#注释掉倒数第一，第三行
+		#p 粘贴进来
+		#取消下面三行的注释，修改上一层dns地址
+		forwarders {
+			114.114.114.114;
+		};
+		#删除其他注释
+		dnssec-validation no;
+		dnssec-enable no;
+		listen-on { 192.168.25.25 }; #本地地址
+		allow-query { any; }; #允许所以主机使用本机获取解析
+	vim named.conf.default-zones
+		#找到最后一个zone
+		#5yy 向下复制5行
+	vi named.conf.local
+		#将复制的粘贴到最后
+		p
+		#修改
+		zone "lg.com" {
+			type master;
+			allow-update { 192.168.25.0/24 };
+			file "/etc/bind/1.zone";
+		};
+		zone "25.168.192.in-addr.arpa" {
+			type master;
+			allow-update { 192.168.25.0/24 };
+			file "/etc/bind/2.zone";
+		};
+	cp -a db.local 1.zone
+	cp -a db.127 2.zone
+	vi 1.zone
+		;
+		; BIND data file for local loopback interface
+		;
+		$TTL    604800
+		@       IN      SOA     lg.com. root.lg.com. (
+                   		           2         ; Serial
+                       		  604800         ; Refresh
+                       		   86400         ; Retry
+                      		  2419200         ; Expire
+                      		   604800 )       ; Negative Cache TTL
+		;
+		@       IN      NS      dns.lg.com.
+		dns     IN      A       192.168.25.25
+		www     IN      A       192.168.25.1
+
+	vi 2.zone
+		;
+		; BIND reverse data file for local loopback interface
+		;
+		$TTL    604800	
+		@       IN      SOA     lg.com. root.lg.com. (
+               	       	        	1         ; Serial
+                	         	604800         ; Refresh
+                  	        	86400         ; Retry
+                 	       	2419200         ; Expire
+               	 		         604800 )       ; Negative Cache TTL
+		;
+		@       IN      NS      dns.lg.com.
+		132     IN      PTR     dns.lg.com.
+		1       IN      PTR     www.lg.com.
+	修改/etc/network/interfaces配置文件
+       		dns-nameservers 192.168.25.25
+	apt list | grep 'dns'
+	apt install -y dnsutils
+	nslookup
+		>>server 192.168.25.25
+		>>www.lg.com
+
+
