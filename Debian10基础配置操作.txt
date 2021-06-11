@@ -44,7 +44,19 @@ systemctl restart networking
 	apt clean #清除缓存
 	apt update #更新apt
 	apt install -y vim #尝试安装vim
-7.dns
+7.安装gnome
+	(1)安装
+	apt-get install -y gnome
+	systemctl set-default graphical.target //设置成图形模式
+	(2)命令行页面切换
+	Ctrl+Alt+F6 / Alt+F6 //从图形界面切换回纯字符界面
+	init 5 //从纯字符界面切换回图形界面
+	(3)root用户不能登录问题
+		1.修改/etc/gdm3/daemon.conf文件
+		在[security]下，输入"AllowRoot = true"
+		2.修改/etc/pam.d/gdm-password文件
+		注释掉auth required pam_succeed_if.so user != root quiet_success
+8.dns
 	#安装dns服务，本次采用bind9
 	apt install -y bind9
 	cd /etc/bind/
@@ -122,4 +134,10 @@ systemctl restart networking
 		>>server 192.168.25.25
 		>>www.lg.com
 
-
+9.修改主机名
+	修改两个配置文件即可
+	vi /etc/hosts
+	192.168.25.25	debian -->改为luguo25
+	vi /etc/hostname
+	直接把原主机名改为想要改的主机名luguo25即可
+	然后reboot重启就修改成功了
