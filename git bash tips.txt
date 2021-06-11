@@ -1,0 +1,33 @@
+git clone 网址
+cd 文件夹
+git add .
+git commit -m ""
+git config --global user.email 1042383080@qq.com
+git config --global user.name LuGuo25
+向github上传时输出后可以少输入一次用户名：git config --global credential.username "LuGuo25"
+git log 查看版本号
+穿梭：
+git reflog 查看命令历史，确定向后的版本号
+git reset --hard [版本号] 可以回溯到这个状态
+若之后git push 报错 ! [rejected]什么的这么敲：
+git pull
+git add .
+git push origin main
+通过镜像网站快速访问github：
+git config --global user.email 1042383080@qq.com
+git config --global user.name LuGuo25
+git config --global url."https://github.com.cnpmjs.org/".insteadOf "https://github.com/"
+
+$ git checkout -b develop  //加一个分支develop
+$ git branch //看分支
+
+建一个自己的分支并上交
+git checkout -b develop (main)
+编程
+git add .
+git commit -m "finished function"
+git checkout master (main)
+git merge develop (main)
+git push origin develop 对比 删除远程branch git push origin :develop
+
+
