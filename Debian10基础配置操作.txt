@@ -1,5 +1,5 @@
 （一）Debian10
-1.Vi编辑器
+1.Vim编辑器
 	方向键和退格键失灵
 		用vi打开/etc/vim/vimrc.tiny,输入以下两行代码
 		set nocompatible
@@ -74,7 +74,7 @@ systemctl restart networking
 		#删除其他注释
 		dnssec-validation no;
 		dnssec-enable no;
-		listen-on { 192.168.25.25 }; #本地地址
+		listen-on { 192.168.25.25； }; #本地地址
 		allow-query { any; }; #允许所以主机使用本机获取解析
 	vim named.conf.default-zones
 		#找到最后一个zone
@@ -85,12 +85,12 @@ systemctl restart networking
 		#修改
 		zone "lg.com" {
 			type master;
-			allow-update { 192.168.25.0/24 };
+			//allow-update { 192.168.25.0/24 };
 			file "/etc/bind/1.zone";
 		};
 		zone "25.168.192.in-addr.arpa" {
 			type master;
-			allow-update { 192.168.25.0/24 };
+			//allow-update { 192.168.25.0/24 };
 			file "/etc/bind/2.zone";
 		};
 	cp -a db.local 1.zone
@@ -141,3 +141,54 @@ systemctl restart networking
 	vi /etc/hostname
 	直接把原主机名改为想要改的主机名luguo25即可
 	然后reboot重启就修改成功了
+10.配置dhcp服务
+	首先编辑/etc/network/interfaces配置文件
+	把第12行改为dhcp
+	iface ens33 inet dhcp
+	:wq保存退出
+	安装
+	apt install -y isc-dhcp-server
+	编辑配置文件
+	vi /etc/dhcp/dhcpd.conf
+	第50-58行取消注释
+	更改为我们的需求
+	subnet 192.168.25.0 netmask 255.255.255.0 {
+		range 192.168.25.30 192.168.25.100;
+		option domain-name-servers 192.168.25.254;
+		option routers 192.168.25.254;
+		default-lease-time 600;
+		max-lease-time 7200;
+	}
+	保存退出
+	ip link查看自己的网卡
+	我们这里是ens33
+	编辑配置文件	
+	vi /etc/default/isc-dhcp-server
+	第17行引号中添加网卡名称
+	INTERFACESv4="ens33"
+	然后保存退出
+	启动dhcp服务
+	systemctl start isc-dhcp-server
+	来到client客户机
+	编辑配置文件
+	vi /etc/network/interfaces
+	将静态地址改为dhcp
+	保存退出
+	重启网络服务
+	systemctl restart networking
+	ip a查看是否拿到ip
+新建dhcp保留地址
+	到client客户机使用ip a命令查看网卡Mac地址
+	如：00:0c:29:e9:4e:ae
+	到安装了dhcp服务的服务器
+	编辑配置文件
+	vi /etc/dhcp/dhcpd.conf
+	:76跳转第76
+	将第76到79行的注释取消
+	77行改为Mac地址
+	78行改为想要保留的ip地址
+	:wq保存退出
+	重启dhcp服务
+	systemctl retsart isc-dhcp-server
+	再到客户机重启网络服务systemctl retsart networking
+	ip a查看是否拿到地址
